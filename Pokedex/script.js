@@ -1,65 +1,95 @@
-const poke_container = document.getElementById('poke-container')
-const pokemon_count = 150
+const container = document.getElementById('poke-container')
+const searchInput = document.getElementById('search')
+const filter = document.getElementById('filter')
 
-const colors = {
-    fire: '#FDDFDF',
-    grass: '#DEFDE0',
-    electric: '#FCF7DE',
-    water: '#DEF3FD',
-    ground: '#f4e7da',
-    rock: '#d5d5d4',
-    fairy: '#fceaff',
-    poison: '#98d7a5',
-    bug: '#f8d5a3',
-    dragon: '#97b3e6',
-    psychic: '#eaeda1',
-    flying: '#F5F5F5',
-    fighting: '#E6E0D4',
-    normal: '#F5F5F5'
-}
+const modal = document.getElementById('modal')
+const modalBody = document.getElementById('modalBody')
+const closeModal = document.getElementById('closeModal')
 
-const main_types = Object.keys(colors)
+const pokemonCount = 150
+let allPokemon = []
 
+// Fetch rapide
 const fetchPokemons = async () => {
-    for (let i = 1; i <= pokemon_count; i++) {
-        await getPokemon(i)
-    }
+  const promises = []
+
+  for (let i = 1; i <= pokemonCount; i++) {
+    promises.push(fetch(`https://pokeapi.co/api/v2/pokemon/${i}`).then(res => res.json()))
+  }
+
+  allPokemon = await Promise.all(promises)
+  displayPokemons(allPokemon)
 }
 
-const getPokemon = async (id) => {
-    const url = `https://pokeapi.co/api/v2/pokemon/${id}`
-    const res = await fetch(url)
-    const data = await res.json()
-    createPokemonCard(data)
-}
+// Affichage
+const displayPokemons = (pokemons) => {
+  container.innerHTML = ""
 
-const createPokemonCard = (pokemon) => {
-    const pokemonEl = document.createElement('div')
-    pokemonEl.classList.add('pokemon')
+  pokemons.forEach(pokemon => {
+    const div = document.createElement('div')
+    div.classList.add('pokemon')
 
-    const name =
-        pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1)
-    const id = pokemon.id.toString().padStart(3, '0')
+    const name = pokemon.name
+    const type = pokemon.types[0].type.name
 
-    const poke_types = pokemon.types.map(t => t.type.name)
-    const type = main_types.find(t => poke_types.includes(t))
-    const color = colors[type]
-
-    pokemonEl.style.backgroundColor = color
-
-    pokemonEl.innerHTML = `
-        <div class="img-container">
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemon.id}.png" alt="${name}">
-        </div>
-        <div class="info">
-            <span class="number">#${id}</span>
-            <h3 class="name">${name}</h3>
-            <small class="type">Type: <span>${type}</span></small>
-        </div>
+    div.innerHTML = `
+      <img src="${pokemon.sprites.front_default}">
+      <h3>${name}</h3>
+      <p>${type}</p>
     `
 
-    poke_container.appendChild(pokemonEl)
+    // Click → modal
+    div.addEventListener('click', () => {
+      modalBody.innerHTML = `
+        <h2>${name}</h2>
+        <img src="${pokemon.sprites.front_default}">
+        <p>HP: ${pokemon.stats[0].base_stat}</p>
+        <p>Attaque: ${pokemon.stats[1].base_stat}</p>
+        <p>Défense: ${pokemon.stats[2].base_stat}</p>
+      `
+      modal.classList.remove('hidden')
+    })
+
+    container.appendChild(div)
+  })
 }
+
+// Recherche
+searchInput.addEventListener('input', () => {
+  const value = searchInput.value.toLowerCase()
+
+  const filtered = allPokemon.filter(p =>
+    p.name.includes(value)
+  )
+
+  displayPokemons(filtered)
+})
+
+// Filtre
+filter.addEventListener('change', () => {
+  const value = filter.value
+
+  if (value === 'all') {
+    displayPokemons(allPokemon)
+    return
+  }
+
+  const filtered = allPokemon.filter(p =>
+    p.types.some(t => t.type.name === value)
+  )
+
+  displayPokemons(filtered)
+})
+
+// Dark mode
+document.getElementById('darkModeToggle').addEventListener('click', () => {
+  document.body.classList.toggle('dark')
+})
+
+// Fermer modal
+closeModal.addEventListener('click', () => {
+  modal.classList.add('hidden')
+})
 
 // Lancement
 fetchPokemons()

@@ -1,16 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <title>Pokedex</title>
-  </head>
-  <body>
-    <h1>Pokedex</h1>
-    <div class="poke-container" id="poke-container"></div>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Pokedex Portfolio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-    <!-- Design inspired by this Dribbble shot: https://dribbble.com/shots/5611109--Pokemon -->
-    <script src="script.js"></script>
-  </body>
+  <h1>Pokédex</h1>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="Rechercher un Pokémon...">
+    
+    <select id="filter">
+      <option value="all">Tous</option>
+      <option value="fire">Feu</option>
+      <option value="water">Eau</option>
+      <option value="grass">Plante</option>
+      <option value="electric">Électrique</option>
+    </select>
+
+    <button id="darkModeToggle">🌙</button>
+  </div>
+
+  <div id="poke-container" class="poke-container"></div>
+
+  <!-- Modal -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-content">
+      <span id="closeModal">&times;</span>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>
